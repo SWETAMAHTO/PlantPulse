@@ -1,0 +1,21 @@
+.env
+__pycache__/
+*.pyc
+
+# Node dependencies
+node_modules/
+
+# Python virtual environment
+venv/
+.venv/
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Uploaded plant images
+uploads/
+
+# System files
+.DS_Store

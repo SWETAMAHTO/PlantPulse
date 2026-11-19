@@ -1,0 +1,299 @@
+/*============================
+PLANTPULSE - BOTANICAL WEBSITE
+==============================
+*/
+
+/*GENERAL STYLING*/
+html{ scroll-behavior: smooth;}
+
+body{font-family:'Arial',sans-serif; 
+    background-color: #f3f8ed; 
+    color: #173e25;}
+
+/*NAVIGATION BAR*/
+header{display: flex; 
+    justify-content: space-between; 
+    align-items: center;
+    padding: 22px 7%;
+    background: #ffffff;
+    box-shadow: 0 4px 15px rgba(30, 80, 40, 0.08);
+    position: sticky;
+    top: 0;
+    z-index: 100;}
+
+header h2{color: #17652e;
+        font-size: 32px;
+        font-weight: 800;}
+
+nav a{text-decoration:none;
+    color: #234c2d;
+    margin-left: 28px;
+    font-size: 17px;
+    font-weight: 700;
+    transition: 0.3s;}
+
+nav a:hover {color: #79a943;} 
+
+/*HERO SECTION*/
+.hero{min-height: 580px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: left;
+    padding: 70px 9%;
+    box-sizing: border-box;
+
+    background:
+            linear-gradient(90deg, rgba(247, 252, 238, 0.45), rgba(247, 252, 238, 0.25)),
+    url("images/background.jpg");
+    background-size: 100% 100%;
+    background-position: center;}
+
+/*HERO LAYOUT*/
+.hero-layout{width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 50px;}
+            
+.hero-content{ flex: 1;
+            max-width: 650px;}
+
+.tagline{ display: inline-block;
+        color: #164b2c;
+        font-weight: 900;
+        font-size: 23px;
+        letter-spacing: 2px;
+        margin-bottom: 25px;
+}
+
+/*MAIN HEADING*/
+.hero h1{ font-size: 55px;
+        font-weight: 900;
+        color: #174c29;
+        margin-bottom: 25px;
+        line-height: 1.2;}
+
+/*DESCRIPTION*/
+.hero p {max-width: 600px;
+        font-size: 21px;
+        font-weight: 600;
+        line-height: 1.8;
+        color: #304c35;}
+
+/*HERO IMAGE*/
+.hero-image{ flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;}
+
+.hero-image img{ width: 100%;
+                max-width: 450px;
+                height: 400px;
+                object-fit: cover;
+                border-radius: 30px;
+                box-shadow: 0 15px 35px rgba(25, 75, 35, 0.20);}
+
+/*BUTTON*/
+button{background: #26783b;
+    color: white;
+    border: none;
+    padding: 19px 38px;
+    margin-top: 30px;
+    border-radius: 35px;
+    font-size: 19px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: 0.3s;
+    box-shadow: 0 5px 15px rgba(30, 100, 45, 0.2);}
+
+button:hover{background: #164c28;
+            transform: translateY(-4px);}
+
+/*FEATURES SECTION*/
+.features{padding: 85px 7%;
+        text-align: center; 
+        background:
+                linear-gradient(rgba(244, 250, 235, 0.45), rgba(244, 250, 235, 0.25)),
+        url("./images/background.jpg");
+        
+        background-size: cover !important;
+        background-position: center !important;
+        background-repeat: no-repeat !important;}
+
+.features h2{font-size: 38px;
+            font-weight: 900; 
+            color: #205d31;
+            margin-bottom: 50px;}
+
+/*FEATURES CARDS*/
+.feature-container{display: grid;
+                    grid-template-columns: repeat(4, 1fr);
+                    gap: 25px;}
+                    
+.card{background: rgba(255, 255, 255, 0.97);
+    padding: 45px 22px;
+    border-radius: 24px;
+    border: 1px solid #d8e9cd;
+
+    box-shadow: 0 8px 25px rgba(30, 80, 40, 0.10);
+    transition: 0.3s;}
+
+.card:hover{transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(30, 80, 40, 0.18);}
+
+.card h3{color: #247238;
+        font-size: 23px;
+        font-weight: 800;
+        margin-bottom: 18px;}
+
+.card p{color: #455b48;
+        font-size: 17px;
+        font-weight: 500;
+        line-height: 1.7;}
+        
+/*FOOTER*/
+footer{background: #174c29;
+    color: white;
+    text-align: center;
+    padding: 30px;
+    font-size: 17px;
+    font-weight: 600;}
+    
+/*RESPONSIVE DESIGN*/
+@media (max-width: 900px){
+    .hero-layout {
+        flex-direction: column;
+        text-align: center;
+    }
+    .feature-container {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .hero h1{
+        font-size: 42px;
+    }
+}
+@media (max-width: 600px){
+    header {
+        flex-direction: column;
+        gap: 20px;
+    }
+    nav {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        align-items: center;
+        gap: 8px 12px;
+        width: 100%;
+    }
+    nav a {
+        margin: 5px;
+        font-size: 14px;
+    }
+    .hero {
+        padding: 65px 7%;
+    }
+    .hero h1 {
+        font-size: 35px;
+    }
+    .hero p {
+        font-size: 17px;
+    }
+    .hero-image img {
+        height: 280px;
+        max-width: 100%;
+        object-fit: contain;
+    }
+    .features {
+        padding: 50px 6%;
+    }
+    .features h2 {
+        font-size: 29px;
+    }
+    .feature-container {
+        display: grid;
+        grid-template-columns: 1fr;
+        justify-items: center;
+        width: 100%;
+        margin: 0 auto;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    .feature-container .feature-card {
+        width: 100%;
+        max-width: 350px;
+        margin: 0 auto;
+        box-sizing: border-box;
+    }
+
+    body {
+        overflow-x: hidden;
+    }
+
+}
+
+.explore-btn {
+    display: inline-block;
+    margin-top: 18px;
+    padding: 12px 25px;
+    background: #16834e;
+    color: white;
+    text-decoration: none;
+    border-radius: 30px;
+    font-size: 15px;
+    font-weight: bold;
+    transition: 0.3s ease;
+}
+
+.explore-btn:hover {
+    background: #105c37;
+    transform: translateY(-3px);
+    box-shadow: 0 5px 12px rgba(0, 0, 0, 0.2);
+}
+
+@media (max-width: 375px) {
+    header {
+        padding: 12px 4%;
+    }
+
+    nav {
+        gap: 6px;
+    }
+
+    nav a {
+        font-size: 12px;
+        margin: 3px;
+    }
+
+    .hero {
+        padding: 40px 5%;
+    }
+
+    .hero h1 {
+        font-size: 27px;
+        line-height: 1.3;
+    }
+
+    .hero p {
+        font-size: 14px;
+    }
+
+    .hero-image img {
+        max-width: 100%;
+        height: 220px;
+        object-fit: contain;
+    }
+
+    .features h2 {
+        font-size: 25px;
+    }
+
+    .explore-btn {
+        padding: 10px 18px;
+        font-size: 13px;
+    }
+}

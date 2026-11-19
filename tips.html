@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plant Care Tips | PlantPulse</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#2e7d32">
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f8f2;
+            color: #23412d;
+        }
+
+        nav {
+            background: #185c38;
+            padding: 20px 8%;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            margin-right: 25px;
+            font-weight: bold;
+        }
+
+        .header {
+            text-align: center;
+            padding: 55px 20px;
+            background: #dcebdc;
+        }
+
+        .header h1 {
+            font-size: 38px;
+            margin-bottom: 12px;
+        }
+
+        .tips-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+            gap: 25px;
+            padding: 45px 8%;
+        }
+
+        .tip-card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .tip-card h2 {
+            color: #16834e;
+            font-size: 21px;
+        }
+
+        .tip-card p {
+            line-height: 1.7;
+            color: #555;
+        }
+
+        footer {
+            background: #185c38;
+            color: white;
+            text-align: center;
+            padding: 18px;
+        }
+
+        @media (max-width: 600px) {
+            nav {
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: center;
+                align-items: center;
+                gap: 12px;
+                padding: 15px 5%;
+            }
+
+            nav a {
+                margin-right: 0;
+                font-size: 13px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <a href="index.html">Home</a>
+        <a href="scan.html">Scan Plant</a>
+        <a href="doctor.html">AI Doctor</a>
+        <a href="tips.html">Plant Tips</a>
+    </nav>
+
+    <section class="header">
+        <h1>Plant Care Tips</h1>
+        <p>Simple tips to keep your plants healthy, fresh and beautiful.</p>
+    </section>
+
+    
+    <section class="header">
+        <h2>Find Care Tips for Your Plant 🌿</h2>
+        <p>Enter your plant name to discover how to care for it.</p>
+
+        <div style="margin: 20px auto; display:flex; justify-content:center; gap:10px; flex-wrap:wrap;">
+            <input
+                type="text"
+                id="plantName"
+                placeholder="Enter plant name (e.g. Rose)"
+                style="padding:12px; border-radius:8px; border:1px solid #aaa; width:250px;"
+                onkeydown="if(event.key === 'Enter') searchPlantTips()"
+            >
+
+            <button
+                onclick="searchPlantTips()"
+                style="padding:12px 22px; background:#185c38; color:white; border:none; border-radius:8px; cursor:pointer;"
+            >
+                Search Plant
+            </button>
+        </div>
+
+    <div id="plantCareResult"></div>
+</section>
+
+
+    <section class="tips-container">
+
+        <div class="tip-card">
+            <h2>Watering Tips</h2>
+            <p>Check the soil before watering.
+                Water your plant when the top layer of soil feels dry.
+            </p>
+        </div>
+
+        <div class="tip-card">
+            <h2>Sunlight</h2>
+            <p>Place plants according to their sunlight needs.Avoid exposing shade-loving plants to harsh sunlight.</p>
+        </div>
+
+        <div class="tip-card">
+            <h2>Healthy Soil</h2>
+            <p>Use well-draining soil so that excess water can escape and roots can breathe properly.</p>
+        </div>
+
+        <div class="tip-card">
+            <h2>Leaf Cleaning</h2>
+            <p>Gently wipe dusty leaves with a soft, damp cloth to help them stay clean.</p>
+        </div>
+
+        <div class="tip-card">
+            <h2>Pruning</h2>
+            <p>Remove dead or damaged leaves using clean scissors to support healthy growth.</p>
+        </div>
+
+        <div class="tip-card">
+            <h2>Check for Pests</h2>
+            <p>Regularly inspect leaves and stems for insects, spots or unusual changes.</p>
+        </div>
+    </section>
+    <footer>
+        <p> @ 2026 PlantPulse | Your Smart Plant Companion</p>
+    </footer>
+
+    
+<script>
+
+function formatCareGuide(markdown) {
+
+    const escapeHTML = (text) => text
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+
+    let html = escapeHTML(markdown);
+
+    html = html.replace(/^### (.*)$/gm, "<h3>$1</h3>");
+    html = html.replace(/^## (.*)$/gm, "<h2>$1</h2>");
+    html = html.replace(/^# (.*)$/gm, "<h2>$1</h2>");
+
+    html = html.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
+    html = html.replace(/\*(.*?)\*/g, "<em>$1</em>");
+
+    html = html.replace(/^\s*[-*] (.*)$/gm, "<li>$1</li>");
+    html = html.replace(/(<li>.*<\/li>\n?)+/g,
+        match => "<ul>" + match + "</ul>");
+
+    html = html
+        .split("\n")
+        .map(line => {
+            if (
+                line.trim() === "" ||
+                line.startsWith("<h") ||
+                line.startsWith("<ul") ||
+                line.startsWith("<li")
+            ) {
+                return line;
+            }
+
+            return "<p>" + line + "</p>";
+        })
+        .join("");
+
+    return html;
+}
+
+async function searchPlantTips() {
+
+    const input = document.getElementById("plantName");
+    const result = document.getElementById("plantCareResult");
+    const button = document.querySelector(
+        'button[onclick="searchPlantTips()"]'
+    );
+
+    const plantName = input.value.trim();
+
+    if (!plantName) {
+        result.textContent = "Please enter a plant name.";
+        return;
+    }
+
+    button.disabled = true;
+    button.textContent = "Generating...";
+    result.textContent = "🌿 PlantPulse AI is preparing your care guide. Please wait...";
+
+    try {
+
+        const response = await fetch(
+            "http://127.0.0.1:5001/api/plant-care",
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    plant_name: plantName
+                })
+            }
+        );
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(
+                data.error || "Unable to generate care guide."
+            );
+        }
+
+        if (!data.care_guide) {
+            throw new Error("No care guide was returned.");
+        }
+
+        const card = document.createElement("div");
+        card.className = "tip-card";
+        card.style.margin = "20px auto";
+        card.style.maxWidth = "750px";
+        card.style.textAlign = "left";
+
+        const heading = document.createElement("h2");
+        heading.textContent = data.plant_name + " Care Guide 🌿";
+
+        const description = document.createElement("p");
+        description.textContent = "Generated by Gemini AI";
+        description.style.color = "#16834e";
+        description.style.fontWeight = "bold";
+
+        const guide = document.createElement("p");
+        guide.innerHTML = formatCareGuide(data.care_guide);
+        guide.style.whiteSpace = "pre-wrap";
+        guide.style.lineHeight = "1.8";
+
+        card.appendChild(heading);
+        card.appendChild(description);
+        card.appendChild(guide);
+
+        result.replaceChildren(card);
+
+    } catch (error) {
+
+        console.error("Plant Care Error:", error);
+
+        result.textContent =
+            "Sorry! We couldn't generate the care guide. " +
+            error.message +
+            " Please try again.";
+
+    } finally {
+
+        button.disabled = false;
+        button.textContent = "Search Plant";
+    }
+}
+</script>
+
+<script>
+    if ("serviceWorker" in navigator) {
+        window.addEventListener("load", () => {
+            navigator.serviceWorker.register("./service-worker.js")
+                .then(() => {
+                    console.log("PlantPulse Service Worker registered!");
+                })
+                .catch((error) => {
+                    console.error("Service Worker registration failed:", error);
+                });
+        });
+    }
+</script>
+
+</body>
+</html>

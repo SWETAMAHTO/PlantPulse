@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Water Reminder | PlantPulse</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#2e7d32">
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f2f8f2;
+            color: #23412d;
+        }
+
+        nav {
+            background: #185c38;
+            padding: 20px 8%;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        nav a:hover {
+            color: #b8e6c7;
+        }
+
+        .header {
+            text-align: center;
+            padding: 50px 20px;
+            background: #dcebdc;
+        }
+
+        .header h1 {
+            font-size: 36px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 16px;
+        }
+
+        .container {
+            max-width: 650px;
+            margin: 40px auto;
+            padding: 30px;
+            background: white;
+            border-radius: 18px;
+            box-shadow: 0 5px 18px rgba(0, 0, 0, 0.08);
+        }
+
+        h2 {
+            color: #16834e;
+            text-align: center;
+        }
+
+        label {
+            display: block;
+            margin-top: 20px;
+            font-weight: bold;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 14px;
+            margin-top: 8px;
+            border: 1px solid #ccc;
+            border: 8px;
+            font-size: 15px;
+        }
+
+        button {
+            border: none;
+            padding: 13px 22px;
+            margin-top: 20px;
+            border-radius: 25px;
+            background: #16834e;
+            color: white;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #105c37;
+        }
+
+        .plant-item {
+            background: #f0f7ef;
+            padding: 20px;
+            margin-top: 18px;
+            border-radius: 12px;
+            border-left: 5px solid #16834e;
+        }
+
+        .plant-item h3 {
+            color: #16834e;
+        }
+
+        .plant-item p {
+            line-height: 1.6;
+        }
+
+        .delete-btn {
+            background: #c0392b;
+            margin-left: 8px;
+        }
+
+        footer {
+            background: #185c38;
+            color: white;
+            text-align: center;
+            padding: 18px;
+            margin-top: 50px;
+        }
+
+        @media (max-width: 600px) {
+            nav {
+                padding: 16px;
+                gap: 14px;
+            }
+
+            nav a {
+                font-size: 14px;
+            }
+
+            .header h1 {
+                font-size: 14px;
+            }
+
+            .container {
+                margin: 20px 12px;
+                padding: 20px;
+            }
+
+            button {
+                width: 100%;
+                margin-left: 0;
+            }
+
+            .delete-btn {
+                margin-left: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <a href="index.html">Home</a>
+        <a href="scan.html">Scan Plant</a>
+        <a href="doctor.html">AI Doctor</a>
+        <a href="tips.html">Plant Tips</a>
+    </nav>
+
+    <section class="header">
+
+        <h1>Plant Water Reminder</h1>
+        <p>Never forget to water your plants.
+            Keep your plants healthy and fresh!
+        </p>
+    </section>
+
+    <div class="container">
+        <h2>Add Your Plant</h2>
+
+        <label>Plant Name</label>
+
+        <input
+            type="text"
+            id="plantName"
+            placeholder="Example: Money Plant"
+        >
+
+        <label>Watering Frequency</label>
+
+        <select id="frequency" onchange="toggleCustomFrequency()">
+
+            <option value="1">Every day</option>
+
+            <option value="2">Every 2 days</option>
+
+            <option value="3">Every 3 days</option>
+
+            <option value="4">Every 5 days</option>
+
+            <option value="5">Every 7 days</option>
+
+            <option value="6">Every 10 days</option>
+
+            <option value="7">Every 14 days</option>
+
+            <option value="custom">Custom Interval</option>
+
+        </select>
+
+        <div id="customFrequencyBox" style="display:none;">
+            <label>Enter Custom Days</label>
+            <input type="number" id="customFrequency" min="1" max="365" placeholder="Enter number of days">
+        </div>
+
+        <label>Last Watered Date</label>
+
+        <input 
+            type="date"
+            id="lastWatered"
+        >
+
+        <label>Preferred Notification Time</label>
+
+        <input
+            type="time"
+            id="notificationTime"
+            value="08:00"
+            step="60"
+        >
+
+        <button onclick="addPlant()">Add Plant</button>
+
+        <button type="button" onclick="enableNotifications()">Enable Notifications</button>
+
+        <h2 style="margin-top: 40px;">My Plants</h2>
+
+        <div id="plantList"></div>
+    </div>
+
+    <footer>
+        <p>
+            @2026 PlantPulse | Your Smart Plant Companion
+        </p>
+    </footer>
+
+    <script>
+
+        let plants = JSON.parse(
+            localStorage.getItem("plantReminders")
+        ) || [];
+
+        function savePlants() {
+
+            localStorage.setItem(
+                "plantReminders",
+                JSON.stringify(plants)
+            );
+        }
+
+        function calculateNextDate(lastDate, frequency){
+
+            let date = new Date(lastDate + "T12:00:00");
+
+            date.setDate(date.getDate() + Number(frequency));
+
+            return date;
+        }
+
+        function toggleCustomFrequency() {
+
+            let frequency = document.getElementById("frequency").value;
+
+            let customBox = document.getElementById("customFrequencyBox");
+
+            if(frequency === "custom") {
+                customBox.style.display = "block";
+            } else {
+                customBox.style.display = "none";
+            }
+        }
+
+        function enableNotifications() {
+            if (!("Notification" in window))
+        {
+            alert("Your browser does not support notifications.");
+            return;
+        }
+
+        Notification.requestPermission().then 
+        (function(permission) {
+            if(permission === "granted")
+        {
+            alert("Notifications enabled successfully!");
+            new
+            Notification("PlantPulse", {
+                body: "Your plant watering reminders are ready!"
+            });
+        }else {
+            alert("Notification permission was not granted.");
+        }
+        });
+        }
+
+        function addPlant() {
+
+            let name = document.getElementById("plantName").value.trim();
+
+            let frequency = document.getElementById("frequency").value;
+
+            let lastWatered = document.getElementById("lastWatered").value;
+
+            let notificationTime = document.getElementById("notificationTime").value;
+
+            if(frequency === "custom" ){
+
+                frequency = document.getElementById("customFrequency").value;
+
+            }
+
+            frequency = Number(frequency);
+
+            if(!name || !lastWatered || !notificationTime  ||!frequency || frequency < 1 || frequency > 365) {
+
+                alert("Please enter valid plant details.");
+
+                return;
+            }
+
+            plants.push({
+                name: name,
+                frequency: frequency,
+                lastWatered: lastWatered,
+                notificationTime: notificationTime
+
+            });
+
+            savePlants();
+
+            document.getElementById("plantName").value = "";
+            document.getElementById("lastWatered").value = "";
+            document.getElementById("customFrequency").value = "";
+
+            displayPlants();
+        }
+
+        function displayPlants() {
+
+            let plantList = document.getElementById("plantList");
+        
+            plantList.innerHTML = "";
+        
+            plants.forEach(function(plant, index) {
+
+                let nextDate = calculateNextDate(
+                    plant.lastWatered,
+                    plant.frequency
+                );
+
+                let today = new Date();
+
+                today.setHours(0, 0, 0, 0);
+
+                let due = new Date(nextDate);
+
+                due.setHours(0, 0, 0, 0);
+
+                let status = due <= today
+                ? "Watering is due!"
+                : "Next watering:" + due.toLocaleDateString();
+
+                plantList.innerHTML += `
+                    <div class="plant-item">
+                        <h3> ${escapeHTML(plant.name)}</h3>
+
+                        <p>
+                            Water every ${plant.frequency} day(s).
+                        </p>
+
+                        <p>
+                            Reminder Time: ${plant.notificationTime || "08:00"}
+                        </p>
+
+                        <p>${status}</p>
+
+                        <button onclick="markWatered(${index})">
+                            Mark as Watered
+                        </button>
+
+                        <button class="delete-btn" onclick="deletePlant(${index})">
+                            Delete
+                        </button>
+                    
+                    </div>
+
+                `;
+
+            });
+        
+        }
+
+        function checkWateringReminders() {
+
+            if (Notification.permission !== "granted") {
+                return;
+            }
+
+            let notifiedPlants= JSON.parse(
+
+            localStorage.getItem("notifiedPlants") || "[]"
+            );
+
+            let today = new Date();
+
+            plants.forEach(function(plant) {
+
+                let nextDate = calculateNextDate(
+                    plant.lastWatered,
+                    plant.frequency
+                );
+
+                let dueDate = new Date(nextDate);
+                dueDate.setHours(0, 0, 0, 0);
+
+                let reminderTime = plant.notificationTime || "08:00";
+
+                let [hours, minutes] = reminderTime.split(":");
+
+                let reminderKey = plant.name + "_" + dueDate.toDateString();
+
+                if(
+                    dueDate.toDateString() === today.toDateString() &&
+                    today.getHours() === Number(hours) &&
+                    today.getMinutes() === Number(minutes) &&
+                    !notifiedPlants.includes(reminderKey)) {
+
+                        new Notification("PlantPulse", {
+                            body: plant.name + " needs watering today!"
+                        });
+
+                        notifiedPlants.push(reminderKey);
+
+                        localStorage.setItem(
+                            "notifiedPlants",
+                            JSON.stringify(notifiedPlants)
+                        );
+                    }
+            });
+        }
+
+        setInterval(function() {
+            checkWateringReminders();
+        }, 10000);
+
+        function markWatered(index) {
+
+            let today = new Date();
+
+            let year = today.getFullYear();
+
+            let month = String(today.getMonth() + 1).padStart(2, "0");
+
+            let day = String(today.getDate()).padStart(2, "0");
+
+            plants[index].lastWatered = `${year}-${month}-${day}`;
+
+            savePlants();
+
+            displayPlants();
+
+        }
+
+        function deletePlant(index) {
+
+            plants.splice(index, 1);
+
+            savePlants();
+
+            displayPlants();
+
+        }
+
+        function escapeHTML(text) {
+
+            return text.replace(/[&<>"']/g, function(character) {
+
+                return {
+                    "&": "&amp;",
+                    "<": "&lt;",
+                    ">": "&gt;",
+                    '"': "&quot;",
+                    "'": "&#039;"
+                }[character];
+
+            });
+
+        }
+
+        displayPlants();
+    </script>
+
+    <script>
+        if ("serviceWorker" in navigator) {
+            window.addEventListener("load", () => {
+                navigator.serviceWorker.register("./service-worker.js")
+                    .then(() => {
+                        console.log("PlantPulse Service Worker registered!");
+                    })
+                    .catch((error) => {
+                        console.error("Service Worker registration failed:", error);
+                    });
+            });
+        }
+    </script>
+
+</body>
+</html>

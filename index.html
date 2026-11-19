@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>PlantPulse | AI Plant Care</title>
+
+        <link rel="stylesheet" href="style.css">
+        <link rel="manifest" href="manifest.json">
+        <meta name="theme-color" content="#2e7d32">
+    </head>
+    <body>
+        <!--Navigation Bar-->
+        <header>
+        <h2>PlantPulse</h2>
+        <nav>
+            <a href="index.html">Home</a>
+            <a href="scan.html">Scan Plant</a>
+            <a href="doctor.html">AI Doctor</a>
+            <a href="tips.html">Plant Tips</a>
+            <a href="history.html">Scan History</a>
+        </nav>
+        </header>
+
+        <!--Home Section-->
+        <section id="home" class="hero">
+            <div class="hero-layout">
+                <!--LEFT SIDE-->
+                <div class="hero-content">
+                    <span class="tagline">YOUR SMART PLANT COMPANION</span>
+
+                    <h1>Give Your Plants the Care They Deserve</h1>
+                    <p>Your smart AI-Powered plant health companion. Identify diseases, monitor plant health and keep your plants happy.</p>
+                <button onclick="document.getElementById('features').scrollIntoView({behavior: 'smooth'})">Explore PlantPulse</button>
+                </div>
+                <!--RIGHT SIDE-->
+                <div class="hero-image">
+                    <img src="images/hero.jpg" alt="Beautiful green indoor plant">
+                </div>
+                </div>
+        </section>
+
+        <!--Feature Section-->
+        <section class="features" id="features">
+            <h2>What Can PlantPulse Do?</h2>
+            <div class="feature-container">
+                <div class="card" id="scan">
+                    <h3>Plant Scanner</h3>
+                    <p>Upload a leaf image to check plant health.</p>
+                    <a href="scan.html" class="explore-btn">Start Scanning</a>
+                </div>
+                <div class="card" id="doctor">
+                    <h3>AI Plant Doctor</h3>
+                    <p>Get intelligent plant care recommendations.</p>
+                    <a href="doctor.html" class="explore-btn">Consult Doctor</a>
+                </div>  
+                <div class="card">
+                    <h3>Water Reminder</h3>
+                    <p>Never forget to water your plants.</p>
+                    <a href="water.html" class="explore-btn">Set Reminder</a>
+                </div> 
+                <div class="card" id="tips">
+                    <h3>Plant Care Tips</h3>
+                    <p>Learn how to keep your plants healthy.</p>
+                    <a href="tips.html" class="explore-btn">Explore Tips</a>
+                </div>
+             </div>
+        </section>
+        
+        <!--Footer-->
+        <footer>
+            <p>@ 2026 PlantPulse | Growing a Greener Future</p>
+        </footer>
+        <script src="script.js"></script>
+
+        <script>
+            if ("serviceWorker" in navigator) {
+                window.addEventListener("load", () => {
+                    navigator.serviceWorker.register("./service-worker.js")
+                        .then((registration) => {
+                            console.log("PlantPulse Service Worker registered!");
+                        })
+                        .catch((error) => {
+                            console.error("Service Worker registration failed:", error);
+                        });
+                });
+            }
+        </script>
+
+    </body>
+</html>

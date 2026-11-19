@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <title>PlantPulse - Scan History</title>
+
+        <link rel="stylesheet" href="style.css">
+        <link rel="manifest" href="manifest.json">
+        <meta name="theme-color" content="#2e7d32">
+
+        <style>
+            .history-container {
+                max-width: 1100px;
+                margin: 40px auto;
+                padding: 20px;
+            }
+
+            .history-heading {
+                text-align: center;
+                margin-bottom: 30px;
+            }
+
+            .history-heading h1 {
+                color: #25834a;
+                font-size: 32px;
+            }
+
+            .history-heading p {
+                color: #777;
+            }
+
+            .history-count {
+                margin-bottom: 20px;
+                font-weight: bold;
+            }
+
+            .history-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+                gap: 22px;
+            }
+
+            .history-card {
+                background: white;
+                border-radius: 14px;
+                overflow: hidden;
+                box-shadow: 0 3px 12px rgba(0, 0, 0, 0.12);
+            }
+
+            .history-card img {
+                width: 100%;
+                height: 210px;
+                object-fit: cover;
+            }
+
+            .history-details {
+                padding: 18px;
+            }
+
+            .history-details h3 {
+                color: #25834a;
+                margin-top: 0;
+            }
+
+            .history-details p {
+                margin: 9px 0;
+                color: #444;
+            }
+
+            .history-status {
+                display: inline-block;
+                background: #fff0cf;
+                color: #8a5b00;
+                padding: 6px 10px;
+                border-radius: 20px;
+                font-size: 12px;
+            }
+
+            .history-message {
+                text-align: center;
+                padding: 30px;
+            }
+
+            .back-home {
+                display: inline-block;
+                margin-top: 25px;
+                padding: 12px 22px;
+                background: #25834a;
+                color: white;
+                text-decoration: none;
+                border-radius: 8px;
+            }
+
+            @media(max-width: 600px) {
+                .history-container {
+                    padding: 14px;
+                    margin: 20px auto;
+                }
+
+                .history-heading h1 {
+                    font-size: 25px;
+                }
+            }
+
+            nav {
+                background: white;
+                padding: 22px 7%;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                flex-wrap: wrap;
+                gap: 15px;
+            }
+
+            nav h2 {
+                font-size: 26px;
+                color: #176b45;
+            }
+
+            .nav-links {
+                display: flex;
+                gap: 22px;
+                flex-wrap: wrap;
+            }
+
+            .nav-links a {
+                text-decoration: none;
+                color: #174d32;
+                font-weight: bold;
+            }
+
+            .nav-links a:hover {
+                color: #25834a;
+            }
+            
+        </style>
+    </head>
+
+    <body>
+
+
+    <nav>
+        <h2>PlantPulse</h2>
+
+        <div class="nav-links">
+            <a href="index.html">Home</a>
+            <a href="scan.html">Plant Scanner</a>
+            <a href="history.html">Scan History</a>
+        </div>
+    </nav>
+
+        <div class="history-container">
+            <div class="history-heading">
+                <h1>Plant Scan History</h1>
+                <p>View your previously uploaded plant scans.</p>
+            </div>
+
+            <p class="history-count" id="scanCount">
+                Loading scan history...
+            </p>
+
+            <div class="history-grid" id="historyGrid"></div>
+
+            <div class="history-message" id="historyMessage"></div>
+
+            <div style="text-align: center;">
+                <a href="index.html" class="back-home">
+                    Back to Home
+                </a>
+            </div>
+
+        </div>
+
+        <script>
+            const API_URL = "http://127.0.0.1:5001/api/history";
+            async function loadHistory() {
+                const grid = document.getElementById("historyGrid");
+                const count = document.getElementById("scanCount");
+                const message = document.getElementById("historyMessage");
+
+                try {
+                    const response = await fetch(API_URL);
+
+                    if(!response.ok) {
+                        throw new Error("Could not load scan history");
+                    }
+
+                    const data = await response.json();
+
+                    const history = data.history || [];
+
+                    count.textContent = "Total Plant Scans:" + history.length;
+
+                    if (history.length === 0) {
+                        message.textContent = "No plant scans found yet.";
+                        return;
+                    }
+
+                    grid.innerHTML = history.map(plant => {
+                        const date = plant.scan_date
+                        ? new Date(
+                            plant.scan_date.replace(" ", "T") + "Z"
+                        ).toLocaleString()
+                        : "Date Unavailable";
+
+                        const status = 
+                        plant.health_status || "Awaiting AI analysis";
+
+                        const disease =
+                        plant.disease || "Not analysed yet";
+
+                        const imageUrl =
+                        "http://127.0.0.1:5001/uploads/" +
+                        encodeURIComponent(plant.image_filename);
+
+                        return `
+                        <div class= "history-card">
+                            <img
+                             src="${imageUrl}"
+                            alt="Upload plant"
+                            onerror="this.style.display='none'"
+                            >
+
+                            <div class="history-details">
+                                <h3>${plant.plant_name || "Unknown plant"}</h3>
+                                <p>
+                                    <strong>Scan ID:</strong>
+                                    ${plant.id}
+                                </p>
+
+                                <p>
+                                    <strong>Scan Date:</strong>
+                                    ${date}
+                                </p>
+
+                                <p>
+                                    <strong>Health:</strong>
+                                    ${status}
+                                </p>
+
+                                <p>
+                                    <strong>Disease:</strong>
+                                    ${disease}
+                                </p>
+
+                                <span class="history-status">
+                                    ${status}
+                                </span>
+                            </div>
+                        </div> `;
+
+                    }).join("");
+
+                } catch (error) {
+                    count.textContent = "Scan History";
+                    message.textContent = "Unable to load scan history. Please check that the backend is running.";
+                
+                    console.error(error);
+                }
+            }
+            loadHistory();
+        </script>
+
+                <script>
+            if ("serviceWorker" in navigator) {
+                window.addEventListener("load", () => {
+                    navigator.serviceWorker.register("./service-worker.js")
+                        .then(() => {
+                            console.log("PlantPulse Service Worker registered!");
+                        })
+                        .catch((error) => {
+                            console.error("Service Worker registration failed:", error);
+                        });
+                });
+            }
+        </script>
+
+    </body>
+</html>

@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Plant Scanner | PlantPulse</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#2e7d32">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f1f7f0;
+            color: #174d32;
+        }
+
+        nav {
+            background: white;
+            padding: 22px 7%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center; 
+        }
+
+        nav h2 {
+            font-size: 30px;
+            color: #176b45;
+        }
+
+        nav a {
+            text-decoration: none;
+            color: #174d32;
+            font-weight: bold;
+        }
+
+        .scanner-container {
+            max-width: 850px;
+            margin: 60px auto;
+            padding: 40px;
+            background: white;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: 0 5px 25px rgba(0, 0, 0, 0.08);
+        }
+
+        .scanner-container h1 {
+            font-size: 35px;
+            margin-bottom: 15px;
+        }
+
+        .scanner-container p {
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        .upload-box {
+            border: 2px dashed #399b68;
+            border-radius: 15px;
+            padding: 45px 20px;
+            background: #f5faf5;
+        }
+
+        .scanner-section {
+            background: #f7fbf7;
+            border: 1px solid #e0eee2;
+            border-radius: 16px;
+            padding: 25px;
+            margin-top: 22px;
+            text-align: left;
+        }
+
+        .scanner-section h2 {
+            color: #176b45;
+            margin-bottom: 12px;
+            font-size: 21px;
+        }
+
+        .scanner-section p {
+            color: #666;
+            margin-bottom: 18px;
+        }
+
+        .symptom-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin: 20px 0;
+        }
+
+        .symptom-option {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 13px;
+            background: white;
+            border: 1px solid #dce9de;
+            border-radius: 10px;
+        }
+
+        .symptom-option input {
+            margin: 0;
+            accent-color: #16834e;
+        }
+
+        #healthResult {
+            margin-top: 20px;
+            padding: 20px;
+            background: white;
+            border-radius: 12px;
+            line-height: 1.8;
+        }
+
+        #healthResult:empty {
+            display: none;
+        }
+
+        .upload-box h2 {
+            margin-bottom: 15px;
+        }
+
+        input {
+            margin: 20px 0;
+        }
+
+        button {
+            background: #16834e;
+            color: white;
+            border: none;
+            padding: 14px 35px;
+            border-radius: 30px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #105c37;
+        }
+
+        #preview {
+            max-width: 300px;
+            max-height: 300px;
+            margin: 20px auto;
+            border-radius: 15px;
+            display: none;
+        }
+
+        #scanResult {
+            display: block;
+            margin: 25px auto;
+            padding: 20px;
+            max-width: 600px;
+            background: #f1f7f0;
+            border-radius: 15px;
+            text-align: left;
+            line-height: 1.8;
+            overflow-wrap: anywhere;
+        }
+
+        #scanResult h2 {
+            color: #176b45;
+            margin-bottom: 15px;
+        }
+
+        #scanResult p {
+            margin-bottom: 8px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 22px;
+            flex-wrap: wrap;
+        }
+
+        .nav-links a:hover {
+            color: #25834a;
+        }
+
+        @media (max-width: 600px) {
+            nav {
+                flex-direction: column;
+                gap: 15px;
+                padding: 18px 5%;
+            }
+
+            .nav-links {
+                justify-content: center;
+                gap: 15px;
+            }
+
+            .nav-links a {
+                font-size: 14px;
+            }
+
+            .scanner-container {
+                margin: 25px 14px;
+                padding: 24px 16px;
+            }
+
+            .scanner-section {
+                padding: 18px 14px;
+            }
+
+            .symptom-grid {
+                grid-template-columns: 1fr;
+            }
+
+        }
+
+    </style>
+</head>
+
+<body>
+    <nav>
+        <h2>PlantPulse</h2>
+
+    <div class="nav-links">
+        <a href="index.html">Home</a>
+        <a href="scan.html">Plant Scanner</a>
+        <a href="history.html">Scan History</a>
+    </div>
+    </nav>
+
+    
+<!-- Combined Plant Scanner -->
+<div class="scanner-container">
+
+    <h1>🌿 AI Plant Health Scanner</h1>
+
+    <p>
+        Upload your plant image and select visible symptoms
+        to understand your plant's health.
+    </p>
+
+    <!-- Image Upload Section -->
+    <div class="scanner-section">
+
+        <h2>1. Upload Your Plant Image</h2>
+
+        <p>Select a clear picture of your plant leaf.</p>
+
+        <div class="upload-box">
+
+            <input
+                type="file"
+                id="plantImage"
+                accept="image/*">
+
+            <br>
+
+            <img id="preview" alt="Plant image preview">
+
+            <br>
+
+            <button type="button" onclick="scanPlant()">
+                Identify My Plant
+            </button>
+
+            <div id="scanResult"></div>
+
+        </div>
+
+    </div>
+
+    <!-- Plant Symptoms Section -->
+    <div class="scanner-section">
+
+        <h2>2. Select Plant Symptoms</h2>
+
+        <p>Select the symptoms you observe on your plant.</p>
+
+        <div class="symptom-grid">
+
+            <label class="symptom-option">
+                <input type="checkbox" name="symptom" value="yellow leaves">
+                Yellow leaves
+            </label>
+
+            <label class="symptom-option">
+                <input type="checkbox" name="symptom" value="wilting">
+                Wilting leaves
+            </label>
+
+            <label class="symptom-option">
+                <input type="checkbox" name="symptom" value="brown spots">
+                Brown spots
+            </label>
+
+            <label class="symptom-option">
+                <input type="checkbox" name="symptom" value="black spots">
+                Black spots
+            </label>
+
+            <label class="symptom-option">
+                <input type="checkbox" name="symptom" value="white powder">
+                White powder on leaves
+            </label>
+
+            <label class="symptom-option">
+                <input type="checkbox" name="symptom" value="holes in leaves">
+                Holes in leaves
+            </label>
+
+        </div>
+
+        <button type="button" onclick="analyzePlantHealth()">
+            Analyze Plant Health
+        </button>
+
+        <div id="healthResult"></div>
+
+    </div>
+
+</div>
+
+<script>
+
+    const plantImage = document.getElementById("plantImage");
+
+    plantImage.addEventListener("change", function() {
+        const file = this.files[0];
+        if(file) {
+            const preview = document.getElementById("preview");
+
+            preview.src = URL.createObjectURL(file);
+
+            preview.style.display="block";
+        }
+    });
+
+    async function scanPlant() {
+        console.log("SCAN BUTTON CLICKED");
+        const resultBox = document.getElementById("scanResult");
+
+        if (!plantImage.files.length) {
+
+            alert("Please upload a plant image first!");
+
+            return;
+        }
+
+        resultBox.innerHTML = "<p>🌱 Identifying your plant... Please wait.</p>";
+
+        const formData = new FormData();
+        formData.append("image", plantImage.files[0]);
+
+        try {
+
+            console.log("Sending image to Flask...");
+            console.log("Selected image:", plantImage.files[0].name);
+
+
+            const response = await fetch("http://127.0.0.1:5001/api/scan",
+                {
+                    method: "POST",
+                    body: formData
+                }
+            );
+
+            console.log("Response received:", response.status);
+            console.log("Response headers:", [...response.headers]);
+
+            const data = await response.json();
+
+            console.log("SCAN API RESPONSE:", data);
+
+            console.log("Plant name:", data.plant_name);
+            console.log("Scientific name:", data.scientific_name);
+            console.log("Result element:", resultBox);
+
+            if (!response.ok) {
+                throw new Error(
+                    data.error || data.message || "Plant scanning failed!"
+                );
+            }
+
+            resultBox.style.display = "block";
+
+            resultBox.innerHTML = `
+                <h2>🌿 Scan Results</h2>
+                <p><strong>Plant Name:</strong> ${data.plant_name || "Not identified"}</p>
+                <p><strong>Scientific Name:</strong> ${data.scientific_name || "Not available"}</p>
+                <p><strong>Confidence:</strong> ${
+                    data.confidence != null
+                    ? Number(data.confidence).toFixed(2) + "%"
+                    : "Not available"
+                }</p>
+                <p><strong>Status:</strong> ${data.identification_status || "Identification completed"}</p>
+            `;
+
+        }
+            catch (error) {
+            console.error("Scan error:", error);
+            resultBox.innerHTML = `
+                <p>⚠️ ${error.message}</p>
+                <p>Please try again with a clear plant image.</p>
+            `;
+        }
+    }
+
+    async function analyzePlantHealth() {
+
+        const resultBox = document.getElementById("healthResult");
+
+        const selectedSymptoms = [
+            ...document.querySelectorAll(
+                'input[name="symptom"]:checked'
+            )
+        ].map(input => input.value);
+
+        if (selectedSymptoms.length === 0) {
+            alert("Please select at least one symptom!");
+            return;
+        }
+
+        resultBox.innerHTML = "<p>🌱 Analyzing plant health...</p>";
+
+        try {
+
+            // Get latest plant scan
+            const historyResponse = await fetch(
+                "http://127.0.0.1:5001/api/history"
+            );
+
+            if (!historyResponse.ok) {
+                throw new Error("Unable to load scan history");
+            }
+
+            const historyData = await historyResponse.json();
+
+            if (!historyData.history.length) {
+                throw new Error("Please scan a plant first!");
+            }
+
+            const latestPlant = historyData.history[0];
+
+            // Send symptoms for analysis
+            const response = await fetch(
+                "http://127.0.0.1:5001/api/health-analysis",
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        plant_id: latestPlant.id,
+                        symptoms: selectedSymptoms
+                    })
+                }
+            );
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.error || "Health analysis failed");
+            }
+
+            resultBox.innerHTML = `
+                <h2>🌿 Plant Health Report</h2>
+                <p><strong>Plant:</strong> ${latestPlant.plant_name}</p>
+                <p><strong>Health:</strong> ${data.health_status}</p>
+                <p><strong>Possible condition:</strong> ${data.disease}</p>
+                <p><strong>Symptoms:</strong> ${data.symptoms.join(", ")}</p>
+                <p><strong>Treatment:</strong> ${data.treatment}</p>
+                <p><strong>Watering advice:</strong> ${data.watering_advice}</p>
+                <p><em>Preliminary symptom-based assessment, not a confirmed diagnosis.</em></p>
+            `;
+
+        } catch (error) {
+
+            console.error("Health analysis error:", error);
+
+            resultBox.innerHTML = `
+                <p>⚠️ ${error.message}</p>
+            `;
+        }
+    }
+        
+</script>
+
+<script>
+    if ("serviceWorker" in navigator) {
+        window.addEventListener("load", () => {
+            navigator.serviceWorker.register("./service-worker.js")
+                .then(() => {
+                    console.log("PlantPulse Service Worker registered!");
+                })
+                .catch((error) => {
+                    console.error("Service Worker registration failed:", error);
+                });
+        });
+    }
+</script>
+
+</body>
+</html>
