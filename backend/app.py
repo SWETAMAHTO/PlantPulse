@@ -536,8 +536,10 @@ def uploaded_file(filename):
 init_db()
 
 if __name__ == "__main__":
+    import os
+
     app.run(
-        debug=True, 
-        port=5001,
-        use_reloader=False
+        host="0.0.0.0",
+        port=int(os.environ.get("PORT", 5001)),
+        debug=False
     )
