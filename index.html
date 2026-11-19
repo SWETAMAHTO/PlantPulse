@@ -6,8 +6,7 @@
         <title>PlantPulse | AI Plant Care</title>
 
         <link rel="stylesheet" href="style.css">
-        <link rel="manifest" href="manifest.json">
-        <meta name="theme-color" content="#2e7d32">
+
     </head>
     <body>
         <!--Navigation Bar-->
@@ -72,20 +71,6 @@
             <p>@ 2026 PlantPulse | Growing a Greener Future</p>
         </footer>
         <script src="script.js"></script>
-
-        <script>
-            if ("serviceWorker" in navigator) {
-                window.addEventListener("load", () => {
-                    navigator.serviceWorker.register("./service-worker.js")
-                        .then((registration) => {
-                            console.log("PlantPulse Service Worker registered!");
-                        })
-                        .catch((error) => {
-                            console.error("Service Worker registration failed:", error);
-                        });
-                });
-            }
-        </script>
 
     </body>
 </html>

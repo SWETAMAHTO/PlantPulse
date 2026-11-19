@@ -4,9 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Plant Care Tips | PlantPulse</title>
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#2e7d32">
-
+    
     <style>
         body {
             margin: 0;
@@ -294,20 +292,6 @@ async function searchPlantTips() {
         button.textContent = "Search Plant";
     }
 }
-</script>
-
-<script>
-    if ("serviceWorker" in navigator) {
-        window.addEventListener("load", () => {
-            navigator.serviceWorker.register("./service-worker.js")
-                .then(() => {
-                    console.log("PlantPulse Service Worker registered!");
-                })
-                .catch((error) => {
-                    console.error("Service Worker registration failed:", error);
-                });
-        });
-    }
 </script>
 
 </body>

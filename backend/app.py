@@ -9,6 +9,7 @@ from werkzeug.exceptions import RequestEntityTooLarge
 import os
 import uuid
 import requests
+import json
 from flask_cors import CORS
 from dotenv import load_dotenv
 from google import genai
@@ -37,41 +38,96 @@ gemini_client = genai.Client(
 
 app = Flask(__name__)
 
-def analyze_plant_health(symptoms):
+
+def analyze_plant_health(symptoms, plant_name):
     symptoms = [
         symptom.lower().strip()
         for symptom in symptoms
     ]
 
-    if any(word in symptoms for word in [
-        "yellow leaves",
-        "wilting",
-        "brown spots",
-        "black spots",
-        "white powder",
-        "holes in leaves"
-    ]):
+    if not symptoms:
+        return {
+            "health_status": "Healthy",
+            "disease": "No symptoms reported",
+            "severity": "Low",
+            "symptom_explanation": "No visible symptoms were reported.",
+            "treatment": "Continue regular plant care.",
+            "watering_advice": "Check soil moisture before watering.",
+            "prevention": "Inspect leaves regularly and maintain good drainage.",
+            "recovery_advice": "Continue monitoring the plant."
+        }
+
+    prompt = f"""
+    You are PlantPulse AI Plant Health Doctor.
+
+    Plant name: {plant_name}
+
+    Analyze these observed plant symptoms for this specific plant:
+    {", ".join(symptoms)}
+
+    Provide a careful preliminary assessment.
+
+    Return ONLY a valid JSON object with these keys:
+    {{
+        "health_status": "Healthy or Needs Attention",
+        "disease": "Possible condition",
+        "severity": "Low, Medium or High",
+        "symptoms": "Explanation of observed symptoms",
+        "treatment": "Practical treatment advice",
+        "watering_advice": "Watering recommendations",
+        "prevention": "Tips to prevent future problems",
+        "recovery_advice": "Steps to help the plant recover"
+    }}
+
+    Important:
+    - Severity must be Low, Medium, or High.
+    - Consider the plant species when suggesting possible causes.
+    - Do not recommend unnecessary chemicals.
+    - Give practical prevention and recovery advice.
+    - If evidence is insufficient, clearly say so.
+    """
+
+    try:
+        response = gemini_client.models.generate_content(
+            model="gemini-3.5-flash-lite",
+            contents=prompt
+        )
+
+        ai_text = response.text.strip()
+
+        if ai_text.startswith("```"):
+            ai_text = ai_text.replace("```json", "", 1)
+            ai_text = ai_text.replace("```", "").strip()
+
+        result = json.loads(ai_text)
+
+        return {
+            "health_status": result["health_status"],
+            "disease": result["disease"],
+            "severity": result["severity"],
+            "symptom_explanation": result["symptoms"],
+            "treatment": result["treatment"],
+            "watering_advice": result["watering_advice"],
+            "prevention": result["prevention"],
+            "recovery_advice": result["recovery_advice"]
+        }
+
+    except Exception as error:
+        print("Gemini Health Analysis Error:", error)
+
         return {
             "health_status": "Needs Attention",
             "disease": "Possible plant stress or disease",
+            "severity": "Medium",
+            "symptom_explanation": "The AI assessment could not be completed.",
             "treatment": (
-                "Inspect the leaves carefully, remove "
-                "severely affected leaves, avoid overwatering "
-                "and check for pests."
+                "Inspect leaves carefully, check for pests "
+                "and remove severely affected leaves."
             ),
-            "watering_advice": (
-                "Check soil moisture before watering."
-            )
+            "watering_advice": "Check soil moisture before watering.",
+            "prevention": "Inspect the plant regularly and maintain good drainage.",
+            "recovery_advice": "Monitor the plant and check its soil moisture."
         }
-
-    return {
-        "health_status": "Healthy",
-        "disease": "No symptoms reported",
-        "treatment": "Continue regular plant care.",
-        "watering_advice": (
-            "Water according to the plant's soil moisture needs."
-        )
-    }
 
 CORS(app, resources={
     r"/api/*": {
@@ -399,13 +455,16 @@ def scan_plant():
     # Save scan information in database
     conn = get_db_connection()
 
-    conn.execute(
+    cursor = conn.execute(
         """
         INSERT INTO plants (plant_name, image_filename)
-        VALUES (?, ?)
+        VALUES (%s, %s)
+        RETURNING id
         """,
         (plant_name, filename)
     )
+
+    plant_id = cursor.fetchone()["id"]
 
     conn.commit()
     conn.close()
@@ -414,6 +473,7 @@ def scan_plant():
         "status": "success",
         "message": "Plant scan completed!",
         "filename": filename,
+        "plant_id": plant_id,
         "plant_name": plant_name,
         "scientific_name": scientific_name,
         "confidence": confidence,
@@ -456,12 +516,17 @@ def health_analysis():
             "error": "Maximum 20 symptoms allowed"
         }), 400
 
-    result = analyze_plant_health(symptoms)
+    try:
+        plant_id = int(plant_id)
+    except (TypeError, ValueError):
+        return jsonify({
+            "error": "Invalid plant ID"
+        }), 400
 
     conn = get_db_connection()
 
     plant = conn.execute(
-        "SELECT id FROM plants WHERE id = ?",
+        "SELECT id, plant_name FROM plants WHERE id = %s",
         (plant_id,)
     ).fetchone()
 
@@ -471,22 +536,34 @@ def health_analysis():
             "error": "Plant scan not found"
         }), 404
 
+    plant_name = plant["plant_name"]
+    result = analyze_plant_health(symptoms, plant_name)
+
+    
     conn.execute(
         """
         UPDATE plants
-        SET health_status = ?,
-            disease = ?,
-            symptoms = ?,
-            treatment = ?,
-            watering_advice = ?
-        WHERE id = ?
+        SET health_status = %s,
+            disease = %s,
+            symptoms = %s,
+            symptom_explanation = %s,
+            severity = %s,
+            treatment = %s,
+            watering_advice = %s,
+            prevention = %s,
+            recovery_advice = %s
+        WHERE id = %s
         """,
         (
             result["health_status"],
             result["disease"],
             ", ".join(symptoms),
+            result["symptom_explanation"],
+            result["severity"],
             result["treatment"],
             result["watering_advice"],
+            result["prevention"],
+            result["recovery_advice"],
             plant_id
         )
     )
@@ -494,14 +571,19 @@ def health_analysis():
     conn.commit()
     conn.close()
 
+    
     return jsonify({
         "status": "success",
         "plant_id": plant_id,
         "health_status": result["health_status"],
         "disease": result["disease"],
+        "severity": result["severity"],
         "symptoms": symptoms,
+        "symptom_explanation": result["symptom_explanation"],
         "treatment": result["treatment"],
         "watering_advice": result["watering_advice"],
+        "prevention": result["prevention"],
+        "recovery_advice": result["recovery_advice"],
         "assessment_type": "symptom_based"
     })
 

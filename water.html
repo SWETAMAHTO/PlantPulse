@@ -6,9 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>Water Reminder | PlantPulse</title>
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#2e7d32">
-
+    
     <style>
 
         * {
@@ -80,7 +78,7 @@
             padding: 14px;
             margin-top: 8px;
             border: 1px solid #ccc;
-            border: 8px;
+            border-radius: 8px;
             font-size: 15px;
         }
 
@@ -189,25 +187,18 @@
 
         <label>Watering Frequency</label>
 
+        
         <select id="frequency" onchange="toggleCustomFrequency()">
-
             <option value="1">Every day</option>
-
             <option value="2">Every 2 days</option>
-
             <option value="3">Every 3 days</option>
-
-            <option value="4">Every 5 days</option>
-
-            <option value="5">Every 7 days</option>
-
-            <option value="6">Every 10 days</option>
-
-            <option value="7">Every 14 days</option>
-
+            <option value="5">Every 5 days</option>
+            <option value="7">Every 7 days</option>
+            <option value="10">Every 10 days</option>
+            <option value="14">Every 14 days</option>
             <option value="custom">Custom Interval</option>
-
         </select>
+
 
         <div id="customFrequencyBox" style="display:none;">
             <label>Enter Custom Days</label>
@@ -429,23 +420,31 @@
 
                 let reminderKey = plant.name + "_" + dueDate.toDateString();
 
-                if(
-                    dueDate.toDateString() === today.toDateString() &&
-                    today.getHours() === Number(hours) &&
-                    today.getMinutes() === Number(minutes) &&
-                    !notifiedPlants.includes(reminderKey)) {
+                let scheduledDate = new Date(dueDate);
 
-                        new Notification("PlantPulse", {
-                            body: plant.name + " needs watering today!"
-                        });
+                scheduledDate.setHours(
+                    Number(hours),
+                    Number(minutes),
+                    0,
+                    0
+                );
 
-                        notifiedPlants.push(reminderKey);
+                if (
+                    today >= scheduledDate &&
+                    !notifiedPlants.includes(reminderKey)
+                ) {
 
-                        localStorage.setItem(
-                            "notifiedPlants",
-                            JSON.stringify(notifiedPlants)
-                        );
-                    }
+                    new Notification("PlantPulse", {
+                        body: plant.name + " needs watering today!"
+                    });
+
+                    notifiedPlants.push(reminderKey);
+
+                    localStorage.setItem(
+                        "notifiedPlants",
+                        JSON.stringify(notifiedPlants)
+                    );
+                }
             });
         }
 
@@ -498,20 +497,6 @@
         }
 
         displayPlants();
-    </script>
-
-    <script>
-        if ("serviceWorker" in navigator) {
-            window.addEventListener("load", () => {
-                navigator.serviceWorker.register("./service-worker.js")
-                    .then(() => {
-                        console.log("PlantPulse Service Worker registered!");
-                    })
-                    .catch((error) => {
-                        console.error("Service Worker registration failed:", error);
-                    });
-            });
-        }
     </script>
 
 </body>

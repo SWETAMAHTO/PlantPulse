@@ -6,8 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>Plant Scanner | PlantPulse</title>
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#2e7d32">
+
     <style>
         * {
             margin: 0;
@@ -462,16 +461,33 @@
                 throw new Error(data.error || "Health analysis failed");
             }
 
+            
             resultBox.innerHTML = `
                 <h2>🌿 Plant Health Report</h2>
+
                 <p><strong>Plant:</strong> ${latestPlant.plant_name}</p>
+
                 <p><strong>Health:</strong> ${data.health_status}</p>
+
+                <p><strong>Severity:</strong> ${data.severity || "Not available"}</p>
+
                 <p><strong>Possible condition:</strong> ${data.disease}</p>
-                <p><strong>Symptoms:</strong> ${data.symptoms.join(", ")}</p>
+
+                <p><strong>Observed symptoms:</strong> ${data.symptoms.join(", ")}</p>
+
+                <p><strong>Symptom explanation:</strong> ${data.symptom_explanation || "Not available"}</p>
+
                 <p><strong>Treatment:</strong> ${data.treatment}</p>
+
                 <p><strong>Watering advice:</strong> ${data.watering_advice}</p>
+
+                <p><strong>Prevention tips:</strong> ${data.prevention || "Not available"}</p>
+
+                <p><strong>Recovery advice:</strong> ${data.recovery_advice || "Not available"}</p>
+
                 <p><em>Preliminary symptom-based assessment, not a confirmed diagnosis.</em></p>
             `;
+
 
         } catch (error) {
 
@@ -483,20 +499,6 @@
         }
     }
         
-</script>
-
-<script>
-    if ("serviceWorker" in navigator) {
-        window.addEventListener("load", () => {
-            navigator.serviceWorker.register("./service-worker.js")
-                .then(() => {
-                    console.log("PlantPulse Service Worker registered!");
-                })
-                .catch((error) => {
-                    console.error("Service Worker registration failed:", error);
-                });
-        });
-    }
 </script>
 
 </body>

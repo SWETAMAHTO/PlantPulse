@@ -6,8 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>AI Plant Doctor | PlantPulse</title>
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#2e7d32">
 
     <style>
 
@@ -288,20 +286,6 @@
             button.textContent = "Check Plant Health";
         }
     });
-    </script>
-
-    <script>
-        if ("serviceWorker" in navigator) {
-            window.addEventListener("load", () => {
-                navigator.serviceWorker.register("./service-worker.js")
-                    .then(() => {
-                        console.log("PlantPulse Service Worker registered!");
-                    })
-                    .catch((error) => {
-                        console.error("Service Worker registration failed:", error);
-                    });
-            });
-        }
     </script>
 
 </body>
