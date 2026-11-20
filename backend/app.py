@@ -10,9 +10,12 @@ import os
 import uuid
 import requests
 import json
+import cloudinary
+import cloudinary.uploader
 from flask_cors import CORS
 from dotenv import load_dotenv
 from google import genai
+
 
 from database import init_db, get_db_connection
 
@@ -22,6 +25,15 @@ load_dotenv(
         ".env"
     )
 )
+
+# Cloudinary configuration
+cloudinary.config(
+    cloud_name=os.getenv("CLOUDINARY_CLOUD_NAME"),
+    api_key=os.getenv("CLOUDINARY_API_KEY"),
+    api_secret=os.getenv("CLOUDINARY_API_SECRET"),
+    secure=True
+)
+
 PLANTNET_API_KEY = os.getenv("PLANTNET_API_KEY")
 
 if not PLANTNET_API_KEY:
@@ -406,6 +418,24 @@ def scan_plant():
 
     image.save(image_path)
 
+    # Upload image to Cloudinary
+    try:
+        cloudinary_result = cloudinary.uploader.upload(
+            image_path,
+            folder="plantpulse"
+        )
+
+        image_url = cloudinary_result["secure_url"]
+
+    except Exception as e:
+        print("CLOUDINARY ERROR:", e)
+
+        return jsonify({
+            "status": "error",
+            "message": "Image upload failed",
+            "details": str(e)
+        }), 502
+
     # Identify plant using PlantNet
     ai_result = identify_plant(image_path)
 
@@ -457,11 +487,11 @@ def scan_plant():
 
     cursor = conn.execute(
         """
-        INSERT INTO plants (plant_name, image_filename)
-        VALUES (%s, %s)
+        INSERT INTO plants (plant_name, image_filename, image_url)
+        VALUES (%s, %s, %s)
         RETURNING id
         """,
-        (plant_name, filename)
+        (plant_name, filename, image_url)
     )
 
     plant_id = cursor.fetchone()["id"]
@@ -473,6 +503,7 @@ def scan_plant():
         "status": "success",
         "message": "Plant scan completed!",
         "filename": filename,
+        "image_url": image_url,
         "plant_id": plant_id,
         "plant_name": plant_name,
         "scientific_name": scientific_name,

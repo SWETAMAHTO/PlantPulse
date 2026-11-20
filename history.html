@@ -172,7 +172,8 @@
         </div>
 
         <script>
-            const API_URL = "http://127.0.0.1:5001/api/history";
+            const API_BASE_URL = "https://plantpulse-te0j.onrender.com";
+            const API_URL = `${API_BASE_URL}/api/history`;
             function formatScanDate(value) {
                 if (!value) return "Date Unavailable";
 
@@ -261,7 +262,7 @@
                         plant.disease || "Not analysed yet";
 
                         const imageUrl =
-                        "http://127.0.0.1:5001/uploads/" +
+                        `${API_BASE_URL}/uploads/` +
                         encodeURIComponent(plant.image_filename);
                   
                         return `
