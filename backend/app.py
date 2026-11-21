@@ -519,6 +519,8 @@ def scan_plant():
 def health_analysis():
 
     data = request.get_json()
+    print("HEALTH ANALYSIS API CALLED")
+    print("RECEIVED DATA:", data)
 
     if not data:
         return jsonify({
@@ -601,9 +603,10 @@ def health_analysis():
     )
 
     conn.commit()
+    print("HEALTH ANALYSIS SAVED SUCCESSFULLY")
+    print("PLANT ID:", plant_id)
     conn.close()
 
-    
     return jsonify({
         "status": "success",
         "plant_id": plant_id,
