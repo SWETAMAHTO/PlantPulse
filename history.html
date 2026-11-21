@@ -260,17 +260,21 @@
 
                         const disease =
                         plant.disease || "Not analysed yet";
+                     
+                        const imageUrl = plant.image_url ||
+                            (plant.image_filename
+                                ? `${API_BASE_URL}/uploads/${encodeURIComponent(plant.image_filename)}`
+                                : "");
 
-                        const imageUrl = plant.image_filename
-                            ? `${API_BASE_URL}/uploads/${encodeURIComponent(plant.image_filename)}`
-                            : "";
                         return `
                             <div class="history-card">
-                                <img
-                                    src="${imageUrl}"
-                                    alt="Upload plant"
-                                    onerror="this.style.display='none'"
-                                >
+                                ${imageUrl ? `
+                                    <img
+                                        src="${imageUrl}"
+                                        alt="${plant.plant_name || 'Plant image'}"
+                                        onerror="this.style.display='none'"
+                                    >
+                            ` : ''}
 
                                 <div class="history-details">
                                     <h3>${plant.plant_name || "Unknown plant"}</h3>
