@@ -10,6 +10,10 @@ import os
 import uuid
 import requests
 import json
+from PIL import Image, ImageOps
+from pillow_heif import register_heif_opener
+
+register_heif_opener()
 import cloudinary
 import cloudinary.uploader
 from flask_cors import CORS
@@ -151,7 +155,7 @@ CORS(app, resources={
     }
 })
 
-ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg"}
+ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "webp", "heic", "heif"}
 
 app.config["MAX_CONTENT_LENGTH"] = 5 * 1024 * 1024
 
@@ -396,28 +400,52 @@ def scan_plant():
             "error": "No file selected"
         }), 400
 
+    
     original_filename = secure_filename(image.filename)
-
-    if not allowed_file(original_filename):
-        return jsonify ({
-            "error": "Only JPG, JPEG and PNG images are allowed"
-        }), 400
 
     if not original_filename:
         return jsonify({
             "error": "Invalid filename"
         }), 400
 
-    extension = original_filename.rsplit(".", 1)[1].lower()
-    
-    filename = f"{uuid.uuid4().hex}.{extension}"
+    if not allowed_file(original_filename):
+        return jsonify({
+            "error": "Please upload JPG, JPEG, PNG, WebP or HEIC images"
+        }), 400
+
+    filename = f"{uuid.uuid4().hex}.jpg"
 
     image_path = os.path.join(
         app.config["UPLOAD_FOLDER"],
         filename
     )
 
-    image.save(image_path)
+    # Convert uploaded image to JPEG
+    try:
+        image.stream.seek(0)
+
+        with Image.open(image.stream) as uploaded_image:
+
+            uploaded_image = ImageOps.exif_transpose(
+                uploaded_image
+            )
+
+            converted_image = uploaded_image.convert("RGB")
+
+            converted_image.save(
+                image_path,
+                format="JPEG",
+                quality=90,
+                optimize=True
+            )
+
+    except Exception as error:
+        print("IMAGE CONVERSION ERROR:", error)
+
+        return jsonify({
+            "error": "Unable to process this image. Please try another photo."
+        }), 400
+
 
     # Upload image to Cloudinary
     try:

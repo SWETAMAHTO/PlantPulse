@@ -6,3 +6,5 @@ psycopg[binary]
 google-genai
 gunicorn
 cloudinary
+Pillow
+pillow-heif
